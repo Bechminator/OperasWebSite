@@ -1,127 +1,60 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
-using System.Data.Entity;
 using System.Linq;
-using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using System.Data.Entity;
 using OperasWebSite.Models;
 
 namespace OperasWebSite.Controllers
 {
     public class OperaController : Controller
     {
-        private OperasDB db = new OperasDB();
+        private OperasDB _contextDb = new OperasDB();
 
         // GET: Opera
         public ActionResult Index()
         {
-            return View(db.Operas.ToList());
+            return View("Index", _contextDb.Operas.ToList());
         }
 
-        // GET: Opera/Details/5
-        public ActionResult Details(int? id)
+        public ActionResult Details(int id)
         {
-            if (id == null)
+            Opera opera = _contextDb.Operas.Find(id);
+            /*
+            Opera opera = (from p in _contextDb.Operas
+                           where p.OperaID == id
+                           select p).FirstOrDefault();
+                           */
+
+            if( opera != null )
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                return View("Details", opera);
             }
-            Opera opera = db.Operas.Find(id);
-            if (opera == null)
-            {
-                return HttpNotFound();
-            }
-            return View(opera);
+
+            return HttpNotFound();
         }
 
-        // GET: Opera/Create
         public ActionResult Create()
         {
-            return View();
+            Opera newOpera = new Opera();
+
+            return View("Create", newOpera);
         }
 
-        // POST: Opera/Create
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "OperaID,Title,Year,Composer")] Opera opera)
+        public ActionResult Create(Opera newOpera)
         {
-            if (ModelState.IsValid)
+            if(ModelState.IsValid)
             {
-                db.Operas.Add(opera);
-                db.SaveChanges();
+                _contextDb.Operas.Add(newOpera);
+                _contextDb.SaveChanges();
                 return RedirectToAction("Index");
             }
 
-            return View(opera);
-        }
+            return View("Create", newOpera);
 
-        // GET: Opera/Edit/5
-        public ActionResult Edit(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Opera opera = db.Operas.Find(id);
-            if (opera == null)
-            {
-                return HttpNotFound();
-            }
-            return View(opera);
-        }
 
-        // POST: Opera/Edit/5
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
-        // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "OperaID,Title,Year,Composer")] Opera opera)
-        {
-            if (ModelState.IsValid)
-            {
-                db.Entry(opera).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
-            return View(opera);
-        }
-
-        // GET: Opera/Delete/5
-        public ActionResult Delete(int? id)
-        {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Opera opera = db.Operas.Find(id);
-            if (opera == null)
-            {
-                return HttpNotFound();
-            }
-            return View(opera);
-        }
-
-        // POST: Opera/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            Opera opera = db.Operas.Find(id);
-            db.Operas.Remove(opera);
-            db.SaveChanges();
-            return RedirectToAction("Index");
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing)
-            {
-                db.Dispose();
-            }
-            base.Dispose(disposing);
         }
     }
 }
