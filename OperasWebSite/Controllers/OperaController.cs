@@ -10,51 +10,48 @@ namespace OperasWebSite.Controllers
 {
     public class OperaController : Controller
     {
-        private OperasDB _contextDb = new OperasDB();
+        private OperasDB contextDB = new OperasDB();
 
-        // GET: Opera
+        //
+        // GET: /Opera/
+
         public ActionResult Index()
         {
-            return View("Index", _contextDb.Operas.ToList());
+            return View("Index", contextDB.Operas.ToList());
         }
 
         public ActionResult Details(int id)
         {
-            Opera opera = _contextDb.Operas.Find(id);
-            /*
-            Opera opera = (from p in _contextDb.Operas
-                           where p.OperaID == id
-                           select p).FirstOrDefault();
-                           */
-
-            if( opera != null )
+            Opera opera = contextDB.Operas.Find(id);
+            if (opera != null)
             {
                 return View("Details", opera);
             }
-
-            return HttpNotFound();
+            else
+            {
+                return HttpNotFound();
+            }
         }
 
         public ActionResult Create()
         {
             Opera newOpera = new Opera();
-
             return View("Create", newOpera);
         }
 
         [HttpPost]
         public ActionResult Create(Opera newOpera)
         {
-            if(ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                _contextDb.Operas.Add(newOpera);
-                _contextDb.SaveChanges();
+                contextDB.Operas.Add(newOpera);
+                contextDB.SaveChanges();
                 return RedirectToAction("Index");
             }
-
-            return View("Create", newOpera);
-
-
+            else
+            {
+                return View("Create", newOpera);
+            }
         }
     }
 }
